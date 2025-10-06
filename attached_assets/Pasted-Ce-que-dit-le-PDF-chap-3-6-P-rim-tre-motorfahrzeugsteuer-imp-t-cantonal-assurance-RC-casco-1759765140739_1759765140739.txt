@@ -1,0 +1,152 @@
+Ce que dit le PDF (chap. 3.6)
+
+Périmètre : motorfahrzeugsteuer (impôt cantonal), assurance (RC+casco), infrastructure de recharge (BEV & PHEV), soins/entretien du véhicule (nettoyage). D’autres postes communs (p. ex. MFK, garage) ne sont pas inclus car jugés identiques entre motorisations.
+
+Impôt cantonal : on calcule un moyen suisse par segment (pas par techno) : (i) prendre les 6 modèles les plus vendus (3 pour SUV), (ii) relever la taxe dans chaque canton (source : ASA), (iii) faire un moyenne pondérée par les immatriculations cantonales, puis moyenne inter-modèles. Le tableau 16 donne les valeurs annuelles par segment (p. ex. Kleinwagen : 194 CHF/an, SUV : 363 CHF/an) ainsi que min/max.
+
+Assurance : profil type (43 ans, canton AG, etc.) et couverture Vollkasko (franchise 1 000 CHF + parkings), prime constante sur 8 ans, et on retient l’offre la moins chère via Comparis par modèle.
+
+Infrastructure de recharge (BEV/PHEV) : 3 040 CHF (11 kW, maison jumelle, ~10 m de câble, devis Helion/retour d’expérience CKW), valeur résiduelle 0 à 8 ans.
+
+Soins du véhicule : 150 CHF/an (référence TCS).
+
+Résultat agrégé « Autres coûts » : le tableau 19 (absolu) et le tableau 20 (relatif) donnent les totaux sur 8 ans par segment et techno (p. ex. Mittelklasse BEV : 12 248 CHF sur 8 ans). Les différences viennent surtout du coût de la borne pour BEV/PHEV.
+
+NB : Dans notre doc de spécification TCO, ces postes sont marqués « à intégrer progressivement » (module évolutif), d’où le placeholder other = 0.0 dans la V1 du code.
+
+Traduction en « équation » codable
+
+Pour une année 
+𝑡
+=
+1..
+𝑁
+t=1..N et un segment donné :
+
+Autres
+𝑡
+=
+Taxe_seg
+⏟
+CHF/an
++
+Prime_mod
+e
+ˋ
+le
+⏟
+CHF/an
++
+150
+⏟
+soins (CHF/an)
++
+1
+𝑡
+=
+1
+⋅
+1
+tech
+∈
+{
+BEV
+,
+PHEV
+}
+⋅
+3040
+⏟
+infrastructure
+Autres
+t
+	​
+
+=
+CHF/an
+Taxe_seg
+	​
+
+	​
+
++
+CHF/an
+Prime_mod
+e
+ˋ
+le
+	​
+
+	​
+
++
+soins (CHF/an)
+150
+	​
+
+	​
+
++
+infrastructure
+1
+t=1
+	​
+
+⋅1
+tech∈{BEV,PHEV}
+	​
+
+⋅3040
+	​
+
+	​
+
+
+— avec éventuellement une inflation OPEX si vous choisissez d’en appliquer une (le rapport n’en impose pas explicitement pour ces postes). Les totaux 8 ans sont 
+∑
+𝑡
+=
+1
+𝑁
+Autres
+𝑡
+∑
+t=1
+N
+	​
+
+Autres
+t
+	​
+
+.
+
+Données & sources à brancher
+
+Taxe : utiliser les moyennes par segment du tableau 16 comme défauts, ou re-calculer dynamiquement via barème ASA si vous avez l’accès.
+
+Assurance : prime annuelle par modèle issue de Comparis (profil défini), tenue constante sur l’horizon.
+
+Borne : coût fixe 3 040 CHF (BEV/PHEV), VR=0.
+
+Soins : 150 CHF/an (TCS).
+
+Contrôle : vos sorties doivent retomber sur l’ordre de grandeur des tableaux 19–20 pour validation.
+
+Intégration rapide dans le code actuel
+
+Dans annual_opex_row, remplacer le placeholder par :
+
+tax = taxe_par_segment[spec.vehicle_class]
+
+insurance = prime_par_modele[spec_id] (ou par techno/segment si vous n’avez pas encore les primes modèle)
+
+care = 150
+
+infra = 3040 if (t == 1 and tech in {BEV,PHEV}) else 0
+
+other = tax + insurance + care + infra
+
+Cela respecte fidèlement la méthode du PDF (postes, sources, conventions), tout en restant simple à paramétrer.
+
+Si vous voulez, je vous prépare un patch minimal pour cashflows.py avec ces champs paramétrables (taxe/segment, prime/modèle, switch borne).
