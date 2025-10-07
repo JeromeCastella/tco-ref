@@ -1,15 +1,32 @@
 from __future__ import annotations
+
+# ...imports...
+
+
+
+from tco_core.models import Tech, GlobalParams, VehicleSpec
+
+TECH_LABELS = {
+    'BEV': 'VE',
+    'ICE': 'VT',
+    'PHEV': 'VHR',
+}
+
+# Ordre d'affichage des technologies (BEV, ICE, PHEV)
+TECH_ORDER = [Tech.BEV, Tech.ICE, Tech.PHEV]
+
 import streamlit as st
 import pandas as pd
 
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from tco_core.models import Tech, GlobalParams, VehicleSpec
-
-from tco_core.models import Tech, GlobalParams, VehicleSpec
+from tco_core.models import GlobalParams, VehicleSpec
 from tco_core.tco import compute_all_techs
 from tco_core.defaults import get_default
+
+
+
 
 try:
     from app.charts import (
@@ -269,8 +286,12 @@ results = compute_all_techs(global_params, specs_by_tech)
 st.divider()
 
 df_decomp = make_decomposition_df_by_post(results, global_params)
+cum_df = make_cum_df(results)
+
 fig_bar = fig_bar_decomposition_by_post(df_decomp)
 st.altair_chart(fig_bar, use_container_width=True)
+# Padding vertical supplémentaire sous le bar chart pour éviter le chevauchement
+st.markdown("<div style='height: 40px'></div>", unsafe_allow_html=True)
 
 cum_df = make_cum_df(results)
 fig_line = fig_line_cumulative(cum_df)
@@ -278,13 +299,15 @@ st.altair_chart(fig_line, use_container_width=True)
 
 st.markdown('<span style="font-size:20px; font-weight:600;">Coût total par kilomètre (TCO/km)</span>', unsafe_allow_html=True)
 kpi_cols = st.columns(3)
-for idx, (tech, res) in enumerate(results.items()):
+for idx, tech in enumerate(TECH_ORDER):
+    res = results[tech]
     with kpi_cols[idx]:
         tco_km = res.tco_per_km
         tco_km_formatted = f"{tco_km:.2f}".replace(".", ",")
+        label = TECH_LABELS.get(tech.name, tech.value)
         st.markdown(f"""
             <div style="text-align: center; padding: 10px 0;">
-                <p style="margin: 0; font-size: 13px; color: #888; font-weight: 500;">{tech.value}</p>
+                <p style="margin: 0; font-size: 13px; color: #888; font-weight: 500;">{label}</p>
                 <p style="margin: 5px 0 0 0; font-size: 24px; font-weight: 600; color: #333;">{tco_km_formatted} CHF/km</p>
             </div>
         """, unsafe_allow_html=True)
@@ -495,9 +518,10 @@ with st.expander("🔧 Données techniques et exports", expanded=False):
     else:
         st.info("Sélectionnez au moins un poste pour afficher le graphique")
 
-    for tech in [Tech.ICE, Tech.BEV, Tech.PHEV]:
+    for tech in TECH_ORDER:
         ok, abs_npv, capex_net, opex_disc = check_decomposition(results[tech], global_params, tol=0.01)
-        msg = f"{tech.value}: |NPV|={abs_npv:,.0f} vs CAPEX_net={capex_net:,.0f} + OPEX={opex_disc:,.0f}"
+        label = TECH_LABELS.get(tech.name, tech.value)
+        msg = f"{label}: |NPV|={abs_npv:,.0f} vs CAPEX_net={capex_net:,.0f} + OPEX={opex_disc:,.0f}"
         (st.success if ok else st.error)(("OK — " if ok else "Écart — ") + msg)
 
     st.subheader("Export")
@@ -527,10 +551,11 @@ with st.expander("🔧 Données techniques et exports", expanded=False):
 
 st.markdown("## Résultats (NPV et TCO/km)")
 recap = []
-for tech in [Tech.ICE, Tech.BEV, Tech.PHEV]:
+for tech in TECH_ORDER:
     r = results[tech]
+    label = TECH_LABELS.get(tech.name, tech.value)
     recap.append({
-        "Technologie": tech.value,
+        "Technologie": label,
         "Classe": r.vehicle_class,
         "NPV total (CHF)": f"{r.npv_total:,.0f}",
         "TCO (CHF/km)": f"{r.tco_per_km:.2f}",
