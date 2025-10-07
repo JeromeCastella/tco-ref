@@ -4,7 +4,18 @@ from __future__ import annotations
 
 
 
+
+
+
+import streamlit as st
+import pandas as pd
+
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from tco_core.models import Tech, GlobalParams, VehicleSpec
+from tco_core.tco import compute_all_techs
+from tco_core.defaults import get_default
 
 TECH_LABELS = {
     'BEV': 'VE',
@@ -14,17 +25,6 @@ TECH_LABELS = {
 
 # Ordre d'affichage des technologies (BEV, ICE, PHEV)
 TECH_ORDER = [Tech.BEV, Tech.ICE, Tech.PHEV]
-
-import streamlit as st
-import pandas as pd
-
-import sys
-import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from tco_core.models import GlobalParams, VehicleSpec
-from tco_core.tco import compute_all_techs
-from tco_core.defaults import get_default
-
 
 
 

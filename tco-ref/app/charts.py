@@ -85,9 +85,23 @@ def fig_bar_decomposition_by_post(df_decomp: pd.DataFrame):
     Create a stacked bar chart with Altair showing TCO decomposition.
     Features: rounded corners, vibrant colors, total labels on top.
     """
+
     df_decomp = df_decomp.copy()
     df_decomp["CHF_formatted"] = df_decomp["CHF"].apply(lambda x: format_chf_swiss(x))
-    
+
+    # Forcer explicitement le type catégoriel pour garantir l'ordre
+    df_decomp["Technologie"] = pd.Categorical(df_decomp["Technologie"], categories=TECH_ORDER_LABELS, ordered=True)
+
+    # S'assurer que toutes les catégories sont présentes (même vides)
+    for tech in TECH_ORDER_LABELS:
+        if tech not in df_decomp["Technologie"].values:
+            for poste in ["Acquisition (achat – VR act.)", "Énergie", "Maintenance", "Pneus", "Autres"]:
+                df_decomp = pd.concat([
+                    df_decomp,
+                    pd.DataFrame([{"Technologie": tech, "Poste": poste, "CHF": 0.0, "CHF_formatted": "0"}])
+                ], ignore_index=True)
+    df_decomp["Technologie"] = pd.Categorical(df_decomp["Technologie"], categories=TECH_ORDER_LABELS, ordered=True)
+
     color_scale = alt.Scale(
         domain=[
             "Autres",
@@ -98,10 +112,10 @@ def fig_bar_decomposition_by_post(df_decomp: pd.DataFrame):
         ],
         range=["#fd7979", "#ffa77f", "#ffcc8f", "#b3cbff", "#4371c4"]
     )
-    
-    df_decomp["Technologie"] = pd.Categorical(df_decomp["Technologie"], categories=TECH_ORDER_LABELS, ordered=True)
+
     totals = df_decomp.groupby("Technologie", as_index=False)["CHF"].sum()
     totals["CHF_formatted"] = totals["CHF"].apply(lambda x: f"{format_chf_swiss(x)} CHF")
+    totals["Technologie"] = pd.Categorical(totals["Technologie"], categories=TECH_ORDER_LABELS, ordered=True)
 
     bars = alt.Chart(df_decomp).mark_bar(cornerRadiusTopLeft=8, cornerRadiusTopRight=8).encode(
         x=alt.X("Technologie:N", axis=alt.Axis(title=None, labelAngle=0), sort=TECH_ORDER_LABELS),
@@ -128,23 +142,23 @@ def fig_bar_decomposition_by_post(df_decomp: pd.DataFrame):
             "anchor": "start"
         }
     )
-    
+
     text = alt.Chart(totals).mark_text(
         dy=-10,
         fontSize=14,
         fontWeight="bold"
     ).encode(
-        x=alt.X("Technologie:N"),
+        x=alt.X("Technologie:N", sort=TECH_ORDER_LABELS),
         y=alt.Y("CHF:Q"),
         text="CHF_formatted:N"
     )
-    
+
     chart = (bars + text).configure_view(
         strokeWidth=0
     ).configure_axis(
         grid=False
     )
-    
+
     return chart
 
 
