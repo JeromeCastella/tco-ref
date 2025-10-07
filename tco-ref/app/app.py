@@ -2,6 +2,11 @@ from __future__ import annotations
 import streamlit as st
 import pandas as pd
 
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from tco_core.models import Tech, GlobalParams, VehicleSpec
+
 from tco_core.models import Tech, GlobalParams, VehicleSpec
 from tco_core.tco import compute_all_techs
 from tco_core.defaults import get_default
@@ -90,72 +95,42 @@ def three_sliders_sum_to_100(label_a: str, label_b: str, label_c: str,
                               default_c: float = 0.05, key_prefix: str = ""):
     """Retourne (a, b, c) avec a+b+c=1.0, via 3 sliders interdépendants."""
     
+
     col1, col2, col3 = st.columns(3)
     with col1:
-        val_a = st.slider(f"{label_a} (%)", 0, 100, 
-                         st.session_state.get(f"{key_prefix}_slider_a", int(default_a * 100)), 
+        val_a = st.slider(f"{label_a} (%)", 0, 100,
+                         st.session_state.get(f"{key_prefix}_slider_a", int(default_a * 100)),
                          key=f"{key_prefix}_slider_a")
     with col2:
         val_b = st.slider(f"{label_b} (%)", 0, 100,
-                         st.session_state.get(f"{key_prefix}_slider_b", int(default_b * 100)), 
+                         st.session_state.get(f"{key_prefix}_slider_b", int(default_b * 100)),
                          key=f"{key_prefix}_slider_b")
     with col3:
         val_c = st.slider(f"{label_c} (%)", 0, 100,
-                         st.session_state.get(f"{key_prefix}_slider_c", int(default_c * 100)), 
+                         st.session_state.get(f"{key_prefix}_slider_c", int(default_c * 100)),
                          key=f"{key_prefix}_slider_c")
-    
-    prev_a = st.session_state.get(f"{key_prefix}_prev_a", int(default_a * 100))
-    prev_b = st.session_state.get(f"{key_prefix}_prev_b", int(default_b * 100))
-    prev_c = st.session_state.get(f"{key_prefix}_prev_c", int(default_c * 100))
-    
-    if val_a != prev_a:
-        remaining = 100 - val_a
-        if remaining > 0 and (prev_b + prev_c) > 0:
-            ratio_b = prev_b / (prev_b + prev_c)
-            ratio_c = prev_c / (prev_b + prev_c)
-            val_b = int(remaining * ratio_b)
-            val_c = 100 - val_a - val_b
-        else:
-            val_b = int(remaining / 2)
-            val_c = 100 - val_a - val_b
-        st.session_state[f"{key_prefix}_slider_b"] = val_b
-        st.session_state[f"{key_prefix}_slider_c"] = val_c
-    elif val_b != prev_b:
-        remaining = 100 - val_b
-        if remaining > 0 and (prev_a + prev_c) > 0:
-            ratio_a = prev_a / (prev_a + prev_c)
-            ratio_c = prev_c / (prev_a + prev_c)
-            val_a = int(remaining * ratio_a)
-            val_c = 100 - val_a - val_b
-        else:
-            val_a = int(remaining / 2)
-            val_c = 100 - val_a - val_b
-        st.session_state[f"{key_prefix}_slider_a"] = val_a
-        st.session_state[f"{key_prefix}_slider_c"] = val_c
-    elif val_c != prev_c:
-        remaining = 100 - val_c
-        if remaining > 0 and (prev_a + prev_b) > 0:
-            ratio_a = prev_a / (prev_a + prev_b)
-            ratio_b = prev_b / (prev_a + prev_b)
-            val_a = int(remaining * ratio_a)
-            val_b = 100 - val_a - val_c
-        else:
-            val_a = int(remaining / 2)
-            val_b = 100 - val_a - val_c
-        st.session_state[f"{key_prefix}_slider_a"] = val_a
-        st.session_state[f"{key_prefix}_slider_b"] = val_b
-    
+
     total = val_a + val_b + val_c
+    st.caption(f"Total: {val_a}% + {val_b}% + {val_c}% = {total}%")
+
     if total != 100:
-        val_c = 100 - val_a - val_b
-        st.session_state[f"{key_prefix}_slider_c"] = val_c
-    
-    st.session_state[f"{key_prefix}_prev_a"] = val_a
-    st.session_state[f"{key_prefix}_prev_b"] = val_b
-    st.session_state[f"{key_prefix}_prev_c"] = val_c
-    
-    st.caption(f"Total: {val_a}% + {val_b}% + {val_c}% = {val_a + val_b + val_c}%")
-    
+        st.warning("La somme des pourcentages n'est pas égale à 100%. Vous pouvez ajuster manuellement ou cliquer sur 'Rééquilibrer'.")
+        if st.button("Rééquilibrer", key=f"{key_prefix}_rebalance"):
+            # Répartit le surplus/déficit sur les 3 sliders de façon proportionnelle
+            vals = [val_a, val_b, val_c]
+            s = sum(vals)
+            if s == 0:
+                vals = [int(100 if i == 0 else 0) for i in range(3)]
+            else:
+                vals = [int(round(v * 100 / s)) for v in vals]
+                # Correction pour garantir la somme à 100
+                diff = 100 - sum(vals)
+                vals[0] += diff
+            st.session_state[f"{key_prefix}_slider_a"] = vals[0]
+            st.session_state[f"{key_prefix}_slider_b"] = vals[1]
+            st.session_state[f"{key_prefix}_slider_c"] = vals[2]
+            st.experimental_rerun()
+
     return val_a / 100.0, val_b / 100.0, val_c / 100.0
 
 
@@ -201,7 +176,8 @@ with col1:
             "moyenne": "Classe moyenne",
             "superieure": "Classe supérieure",
             "suv": "SUV"
-        }[x]
+        }[x],
+        key="vehicle_class_selectbox"
     )
 
 with col2:
@@ -288,12 +264,12 @@ cum_df = make_cum_df(results)
 fig_line = fig_line_cumulative(cum_df)
 st.altair_chart(fig_line, use_container_width=True)
 
-st.markdown("#### Coût total par kilomètre (TCO/km)")
+st.markdown('<span style="font-size:20px; font-weight:600;">Coût total par kilomètre (TCO/km)</span>', unsafe_allow_html=True)
 kpi_cols = st.columns(3)
 for idx, (tech, res) in enumerate(results.items()):
     with kpi_cols[idx]:
         tco_km = res.tco_per_km
-        tco_km_formatted = f"{tco_km:.3f}".replace(".", ",")
+        tco_km_formatted = f"{tco_km:.2f}".replace(".", ",")
         st.markdown(f"""
             <div style="text-align: center; padding: 10px 0;">
                 <p style="margin: 0; font-size: 13px; color: #888; font-weight: 500;">{tech.value}</p>

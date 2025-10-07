@@ -176,7 +176,7 @@ def fig_line_cumulative(cum_df: pd.DataFrame):
         height=400,
         title={
             "text": "Evolution des coûts sur la durée de possession",
-            "fontSize": 15,
+            "fontSize": 20,
             "anchor": "start"
         }
     )
