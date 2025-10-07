@@ -1,0 +1,130 @@
+{
+  "petite": {
+    "ICE": {
+      "purchase_price": 25000,
+      "residual_rate_8y_hint": 0.25,
+      "consumption_fuel_l_per_100": 5.5,
+      "consumption_elec_kwh_per_100": 0.0,
+      "maint_6y_chf": 2400,
+      "tires_base_chf": 800,
+      "annual_tax_chf": 194,
+      "annual_insurance_chf": 450
+    },
+    "BEV": {
+      "purchase_price": 32000,
+      "residual_rate_8y_hint": 0.35,
+      "consumption_fuel_l_per_100": 0.0,
+      "consumption_elec_kwh_per_100": 15.0,
+      "maint_6y_chf": 1400,
+      "tires_base_chf": 800,
+      "annual_tax_chf": 194,
+      "annual_insurance_chf": 650
+    },
+    "PHEV": {
+      "purchase_price": 28000,
+      "residual_rate_8y_hint": 0.28,
+      "consumption_fuel_l_per_100": 4.0,
+      "consumption_elec_kwh_per_100": 13.0,
+      "maint_6y_chf": 2200,
+      "tires_base_chf": 800,
+      "annual_tax_chf": 194,
+      "annual_insurance_chf": 550
+    }
+  },
+  "superieure": {
+    "ICE": {
+      "purchase_price": 35000,
+      "residual_rate_8y_hint": 0.28,
+      "consumption_fuel_l_per_100": 6.0,
+      "consumption_elec_kwh_per_100": 0.0,
+      "maint_6y_chf": 2800,
+      "tires_base_chf": 900,
+      "annual_tax_chf": 275,
+      "annual_insurance_chf": 600
+    },
+    "BEV": {
+      "purchase_price": 42000,
+      "residual_rate_8y_hint": 0.38,
+      "consumption_fuel_l_per_100": 0.0,
+      "consumption_elec_kwh_per_100": 16.5,
+      "maint_6y_chf": 1600,
+      "tires_base_chf": 900,
+      "annual_tax_chf": 275,
+      "annual_insurance_chf": 750
+    },
+    "PHEV": {
+      "purchase_price": 38000,
+      "residual_rate_8y_hint": 0.30,
+      "consumption_fuel_l_per_100": 4.5,
+      "consumption_elec_kwh_per_100": 14.5,
+      "maint_6y_chf": 2500,
+      "tires_base_chf": 900,
+      "annual_tax_chf": 275,
+      "annual_insurance_chf": 700
+    }
+  },
+  "moyenne": {
+    "ICE": {
+      "purchase_price": 50000,
+      "residual_rate_8y_hint": 0.30,
+      "consumption_fuel_l_per_100": 6.5,
+      "consumption_elec_kwh_per_100": 0.0,
+      "maint_6y_chf": 3000,
+      "tires_base_chf": 1000,
+      "annual_tax_chf": 356,
+      "annual_insurance_chf": 625
+    },
+    "BEV": {
+      "purchase_price": 60000,
+      "residual_rate_8y_hint": 0.40,
+      "consumption_fuel_l_per_100": 0.0,
+      "consumption_elec_kwh_per_100": 17.0,
+      "maint_6y_chf": 1700,
+      "tires_base_chf": 1000,
+      "annual_tax_chf": 356,
+      "annual_insurance_chf": 690
+    },
+    "PHEV": {
+      "purchase_price": 55000,
+      "residual_rate_8y_hint": 0.32,
+      "consumption_fuel_l_per_100": 5.0,
+      "consumption_elec_kwh_per_100": 15.5,
+      "maint_6y_chf": 2700,
+      "tires_base_chf": 1000,
+      "annual_tax_chf": 356,
+      "annual_insurance_chf": 690
+    }
+  },
+  "suv": {
+    "ICE": {
+      "purchase_price": 65000,
+      "residual_rate_8y_hint": 0.32,
+      "consumption_fuel_l_per_100": 7.5,
+      "consumption_elec_kwh_per_100": 0.0,
+      "maint_6y_chf": 3500,
+      "tires_base_chf": 1200,
+      "annual_tax_chf": 363,
+      "annual_insurance_chf": 800
+    },
+    "BEV": {
+      "purchase_price": 75000,
+      "residual_rate_8y_hint": 0.42,
+      "consumption_fuel_l_per_100": 0.0,
+      "consumption_elec_kwh_per_100": 20.0,
+      "maint_6y_chf": 2000,
+      "tires_base_chf": 1200,
+      "annual_tax_chf": 363,
+      "annual_insurance_chf": 680
+    },
+    "PHEV": {
+      "purchase_price": 70000,
+      "residual_rate_8y_hint": 0.34,
+      "consumption_fuel_l_per_100": 6.0,
+      "consumption_elec_kwh_per_100": 18.0,
+      "maint_6y_chf": 3200,
+      "tires_base_chf": 1200,
+      "annual_tax_chf": 363,
+      "annual_insurance_chf": 690
+    }
+  }
+}
