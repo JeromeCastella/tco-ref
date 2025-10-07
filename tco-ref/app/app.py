@@ -189,7 +189,7 @@ def check_decomposition(res, params, tol=0.01):
     return ok, abs_npv, capex_net, opex_disc
 
 
-st.set_page_config(page_title="Comparateur BEV ICE PHEV", page_icon="📊", layout="wide")
+st.set_page_config(page_title="Comparateur BEV ICE PHEV", page_icon="🚗", layout="wide")
 st.title("Comparateur Electrique vs Thermique vs Hybride")
 
 st.markdown("### Paramètres principaux")
