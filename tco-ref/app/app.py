@@ -96,6 +96,30 @@ def three_sliders_sum_to_100(label_a: str, label_b: str, label_c: str,
     """Retourne (a, b, c) avec a+b+c=1.0, via 3 sliders interdépendants."""
     
 
+
+    # Étape 1 : si flag de rééquilibrage, corrige les valeurs et rerun
+    rebalance_flag = f"{key_prefix}_rebalance_flag"
+    if st.session_state.get(rebalance_flag, False):
+        vals = [
+            st.session_state.get(f"{key_prefix}_slider_a", int(default_a * 100)),
+            st.session_state.get(f"{key_prefix}_slider_b", int(default_b * 100)),
+            st.session_state.get(f"{key_prefix}_slider_c", int(default_c * 100)),
+        ]
+        s = sum(vals)
+        if s == 0:
+            vals = [100, 0, 0]
+        else:
+            vals = [int(round(v * 100 / s)) for v in vals]
+            diff = 100 - sum(vals)
+            vals[0] += diff
+        st.session_state[f"{key_prefix}_slider_a"] = vals[0]
+        st.session_state[f"{key_prefix}_slider_b"] = vals[1]
+        st.session_state[f"{key_prefix}_slider_c"] = vals[2]
+        st.session_state[rebalance_flag] = False
+        st.rerun()
+        return vals[0] / 100.0, vals[1] / 100.0, vals[2] / 100.0
+
+    # Étape 2 : affichage normal des sliders
     col1, col2, col3 = st.columns(3)
     with col1:
         val_a = st.slider(f"{label_a} (%)", 0, 100,
@@ -116,20 +140,8 @@ def three_sliders_sum_to_100(label_a: str, label_b: str, label_c: str,
     if total != 100:
         st.warning("La somme des pourcentages n'est pas égale à 100%. Vous pouvez ajuster manuellement ou cliquer sur 'Rééquilibrer'.")
         if st.button("Rééquilibrer", key=f"{key_prefix}_rebalance"):
-            # Répartit le surplus/déficit sur les 3 sliders de façon proportionnelle
-            vals = [val_a, val_b, val_c]
-            s = sum(vals)
-            if s == 0:
-                vals = [int(100 if i == 0 else 0) for i in range(3)]
-            else:
-                vals = [int(round(v * 100 / s)) for v in vals]
-                # Correction pour garantir la somme à 100
-                diff = 100 - sum(vals)
-                vals[0] += diff
-            st.session_state[f"{key_prefix}_slider_a"] = vals[0]
-            st.session_state[f"{key_prefix}_slider_b"] = vals[1]
-            st.session_state[f"{key_prefix}_slider_c"] = vals[2]
-            st.experimental_rerun()
+            st.session_state[rebalance_flag] = True
+            st.rerun()
 
     return val_a / 100.0, val_b / 100.0, val_c / 100.0
 
