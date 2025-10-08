@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Dict
 import pandas as pd
 import altair as alt
+import streamlit as st
 
 from tco_core.models import Tech, Results, GlobalParams
 
@@ -143,14 +144,18 @@ def fig_bar_decomposition_by_post(df_decomp: pd.DataFrame):
         }
     )
 
+    theme = st.get_option("theme.base")
+    label_color = "#ffffff" if theme == "dark" else "#797979"
     text = alt.Chart(totals).mark_text(
         dy=-10,
         fontSize=14,
-        fontWeight="bold"
+        fontWeight=500,
+
     ).encode(
         x=alt.X("Technologie:N", sort=TECH_ORDER_LABELS),
         y=alt.Y("CHF:Q"),
-        text="CHF_formatted:N"
+        text="CHF_formatted:N",
+        color=alt.value(label_color)
     )
 
     chart = (bars + text).configure_view(
@@ -158,6 +163,9 @@ def fig_bar_decomposition_by_post(df_decomp: pd.DataFrame):
     ).configure_axis(
         grid=False
     )
+
+
+
 
     return chart
 
