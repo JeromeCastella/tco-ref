@@ -8,12 +8,11 @@ import streamlit as st
 from tco_core.models import Tech, Results, GlobalParams
 
 TECH_LABELS = {
-    'BEV': 'VE',
-    'ICE': 'VT',
-    'PHEV': 'VHR',
+    'BEV': 'Electrique',
+    'ICE': 'Thermique',
+    'PHEV': 'Hybride Plug-in',
 }
-TECH_ORDER_LABELS = ['VE', 'VT', 'VHR']
-
+TECH_ORDER_LABELS = ['Electrique', 'Thermique', 'Hybride Plug-in']
 # Fonction utilitaire pour générer le DataFrame des dépenses par catégorie (manquante)
 def make_expenses_by_category_df(results: Dict[Tech, Results]) -> pd.DataFrame:
     """
